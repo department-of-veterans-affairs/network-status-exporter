@@ -1,39 +1,65 @@
 from easysnmp import Session
+from prometheus_client import start_http_server, Enum
+from yaml import load
+import sys
+import time
+
+
+router_states = [
+    'no_status',
+    'idle',
+    'connect',
+    'active',
+    'opensent',
+    'openconfirm',
+    'established',
+    'unknown_status'
+]
 
 
 def print_status(status):
   if status is None or status.value is None:
-    return 'no status reported'
-
+    return router_states[0]
   elif status.value == '1':
-    return 'idle'
+    return router_states[1]
   elif status.value == '2':
-    return 'connect'
+    return router_states[2]
   elif status.value == '3':
-    return 'active'
+    return router_states[3]
   elif status.value == '4':
-    return 'opensent'
+    return router_states[4]
   elif status.value == '5':
-    return 'openconfirm'
+    return router_states[5]
   elif status.value == '6':
-    return 'established'
+    return router_states[6]
   else:
-    return 'unknown status'
+    return router_states[7]
 
-## ------------
-for config in configuration:
-    hostname = config.get('hostname')
-    route1, route2 = config.get('routes')
-    community = config.get('community')
-    print "Host: " + hostname
 
-    # Create an SNMP session to be used for all our requests
-    session = Session(hostname=hostname, community=community, version=2)
+def poll_routers(configuration, env, prom_metric):
+    for config in configuration:
+        hostname = config.get('hostname')
+        community = config.get('community')
 
-    # Route 1 - BGP connection to 10.241.16.16
-    status = session.get('.1.3.6.1.2.1.15.3.1.2.' + route1)
-    print "BGP Peering Status Connection 1: " + print_status(status)
+        # Create an SNMP session to be used for all our requests
+        session = Session(hostname=hostname, community=community, version=2)
 
-    # Route 2 - BGP connection to 10.242.16.16
-    status = session.get('.1.3.6.1.2.1.15.3.1.2.' + route2)
-    print "BGP Peering Status Connection 2: " + print_status(status)
+        for route in config.get('routes'):
+            status = session.get('.1.3.6.1.2.1.15.3.1.2.' + route)
+            e.labels(hostname, route, community, env).state(print_status(status))
+
+
+if __name__ == '__main__':
+    e = Enum(
+        'bgp_connection_state',
+        'Status of Router BGP connections',
+        labelnames=('hostname', 'connection', 'community', 'environment'),
+        states=router_states
+    )
+    start_http_server(8000)
+    with open(sys.argv[1], 'r') as conf_file:
+        config = load(conf_file)
+        while True:
+            poll_routers(config['routers'], config['environment'], e)
+            time.sleep(config['poll_interval'])
+

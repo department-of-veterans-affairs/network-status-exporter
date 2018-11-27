@@ -23,11 +23,14 @@ python reporter.py config.yml
 ## Configuration
 
 ```yaml
-- host: 29.38.10.2
-  routes:
-    - 29.28.10.3
-    - 29.28.10.4
-  community: pgbcommunity
+poll_interval: 15
+environment: dev
+routers:
+  - host: 29.38.10.2
+    community: pgbcommunity
+    routes:
+      - 29.28.10.3
+      - 29.28.10.4
 ```
 
 ## License
