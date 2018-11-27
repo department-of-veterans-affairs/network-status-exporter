@@ -11,7 +11,7 @@ Requires:
 
 ## Usage
 
-The demo application will send a SNMP request for a status update from selected BGP peering connection in a CSR. The SNMP response will include whether the peering connection are **established**.
+The demo application will send a SNMP request for a status update from selected BGP peering connection to a network appliance. The SNMP response will include whether the peering connection are **established**.
 
 ```bash
 virtualenv .venv
