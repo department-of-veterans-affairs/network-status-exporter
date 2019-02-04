@@ -26,7 +26,7 @@ python reporter.py config.yml
 poll_interval: 15
 environment: dev
 routers:
-  - host: 29.38.10.2
+  - hostname: 29.38.10.2
     community: pgbcommunity
     routes:
       - 29.28.10.3
