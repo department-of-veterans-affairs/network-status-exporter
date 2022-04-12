@@ -1,6 +1,6 @@
 from easysnmp import Session
 from prometheus_client import start_http_server, Enum
-from yaml import load
+from yaml import load, Loader
 import sys
 import time
 
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     )
     start_http_server(8000)
     with open(sys.argv[1], 'r') as conf_file:
-        config = load(conf_file)
+        config = load(conf_file, Loader=Loader)
         while True:
             poll_routers(config['routers'], config['environment'], e)
             time.sleep(config['poll_interval'])
