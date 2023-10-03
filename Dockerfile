@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.11
 
 RUN sed -i "s#Components: main#Components: main contrib non-free#g" /etc/apt/sources.list.d/debian.sources
 
